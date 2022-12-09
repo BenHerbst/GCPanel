@@ -1,0 +1,4 @@
+gnome-mouse-panel
+gnome-wifi-panel
+nvidia-settings
+blueman-manager
