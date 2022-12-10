@@ -51,42 +51,37 @@ static void activate_cb ( AdwApplication *app ) {
       // get icon name from desktop file
       FILE *desktop_file = fopen(location, "r");
 
-      char *icon_name;
+      char icon_name[50];
       
       char current_char = fgetc(desktop_file);
-      int line_count = 0;
       int string_count = 0;
-
-      char desktop_file_array[255][50];
+      char line[500];
 
       while (current_char != EOF) {
         if (current_char == '\n') {
-          // new line
+          if (strncmp(line, "Icon=", strlen("Icon=")) == 0 && string_count < sizeof(icon_name)) {
+            // line starts with Icon=
+            strcpy(icon_name, line);
+          }
+          // reset line
+          memset(line, 0, sizeof(line));
           string_count = 0;
-          line_count++;
         } else {
           // no new line
-          desktop_file_array[line_count][string_count] = current_char;
+          line[string_count] = current_char;
           string_count++;
         }
         current_char = fgetc(desktop_file);
       }
-      
-      for (int line = 0; line < 255; line++) {
-        desktop_file_array[line];
-        if (strncmp(desktop_file_array[line], "Icon=", strlen("Icon=")) == 0) {
-          // line starts with Icon=
-          icon_name = desktop_file_array[line];
-          icon_name += 5;
-        }
-      }
 
-      g_print("%s\n\n", icon_name);
+      // trimm icon name
+      char *icon_name_trimmed = icon_name;
+      icon_name_trimmed += 5;
 
       fclose(desktop_file);
 
       GtkButton *application_button = gtk_button_new();
-      GtkImage *application_icon = gtk_image_new_from_icon_name(icon_name);
+      GtkImage *application_icon = gtk_image_new_from_icon_name(icon_name_trimmed);
 
       gtk_image_set_icon_size(application_icon, GTK_ICON_SIZE_LARGE);
       gtk_button_set_child(application_button, application_icon);
